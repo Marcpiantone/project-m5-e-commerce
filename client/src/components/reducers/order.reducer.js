@@ -11,6 +11,9 @@ export default function orderReducer(state = initialState, action) {
     case "RECEIVE_ORDER": {
       return { ...state, order: action.order, status: "idle" };
     }
+    case "RECEIVE_ORDER_ERROR": {
+      return { ...state, order: action.order, status: "error" };
+    }
     default: {
       return state;
     }

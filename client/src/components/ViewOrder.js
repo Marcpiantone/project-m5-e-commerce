@@ -3,13 +3,19 @@ import CartItem from "./CartItem";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import { getCartItemArray } from "./reducers/cart.reducer";
-import { beginPurchaseProcess, receiveOrder, requestOrder } from "../actions";
+import {
+  beginPurchaseProcess,
+  receiveOrder,
+  requestOrder,
+  receiveOrderError,
+} from "../actions";
 import { getOrder } from "./reducers/order.reducer";
 // const { requestOrder } = require("../actions");
 
 const ViewOrder = () => {
   const dispatch = useDispatch();
 
+  const orderStatus = useSelector(getOrder).status;
   const yourOrder = useSelector(getOrder).order;
   let yourOrderItems = [];
   if (yourOrder) {
@@ -20,13 +26,14 @@ const ViewOrder = () => {
 
   let total = 0;
   let numCartItems = 0;
-
-  yourOrderItems.forEach((item) => {
-    console.log(item.price);
-    console.log(item.quantity);
-    total = total + Number(item.price.slice(1)) * Number(item.quantity);
-    numCartItems = Number(numCartItems) + Number(item.quantity);
-  });
+  if (yourOrderItems) {
+    yourOrderItems.forEach((item) => {
+      console.log(item.price);
+      console.log(item.quantity);
+      total = total + Number(item.price.slice(1)) * Number(item.quantity);
+      numCartItems = Number(numCartItems) + Number(item.quantity);
+    });
+  }
 
   const [orderNumber, setOrderNumber] = React.useState("");
 
@@ -38,8 +45,10 @@ const ViewOrder = () => {
       .then((json) => {
         dispatch(receiveOrder(json));
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .then(dispatch(receiveOrderError()));
   };
+  console.log(orderStatus);
 
   return (
     <PageDiv>
@@ -65,7 +74,10 @@ const ViewOrder = () => {
             SUBMIT
           </SubmitButton>
         </InputForm>
-        {yourOrderItems.length > 0 && (
+        {orderStatus === "error" && (
+          <div>Sorry, we couldn't find that order number!</div>
+        )}
+        {orderStatus === "idle" && (
           <>
             <CartDiv>
               <CartTitle>
