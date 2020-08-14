@@ -223,6 +223,7 @@ const StyledLink = styled(Link)`
   color: grey;
   &:hover {
     background-color: #aa80ff;
+    color: white;
   }
 `;
 

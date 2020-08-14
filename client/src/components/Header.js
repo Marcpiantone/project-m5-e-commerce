@@ -25,6 +25,7 @@ const Header = () => {
           <StyledNavLink to="/cart">
             VIEW CART{numCartItems > 0 && <span>({numCartItems})</span>}
           </StyledNavLink>
+          <StyledNavLink to="/order">VIEW ORDER</StyledNavLink>
           <SearchBar />
         </HeaderLinks>
       </HeaderDiv>

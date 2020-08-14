@@ -9,13 +9,19 @@ import { getOrder } from "./reducers/order.reducer";
 
 const ViewOrder = () => {
   const dispatch = useDispatch();
-  const cartItems = useSelector(getCartItemArray);
-  console.log(cartItems);
+
+  const yourOrder = useSelector(getOrder).order;
+  let yourOrderItems = [];
+  if (yourOrder) {
+    yourOrderItems = yourOrder.order;
+  }
+  console.log(yourOrder);
+  console.log(yourOrderItems);
 
   let total = 0;
   let numCartItems = 0;
 
-  cartItems.forEach((item) => {
+  yourOrderItems.forEach((item) => {
     console.log(item.price);
     console.log(item.quantity);
     total = total + Number(item.price.slice(1)) * Number(item.quantity);
@@ -35,76 +41,106 @@ const ViewOrder = () => {
       .catch((err) => console.error(err));
   };
 
-  const yourOrder = useSelector(getOrder);
-  console.log(yourOrder);
-
   return (
     <PageDiv>
-      <form>
-        <InputDiv>
-          <label htmlFor="orderNumber">Please enter your order number:</label>
-          <OrderNumberInput
-            type="text"
-            id="orderNumber"
-            name="orderNumber"
-            value={orderNumber}
-            onChange={(e) => setOrderNumber(e.target.value)}
-          ></OrderNumberInput>
-        </InputDiv>
-        <SubmitButton
-          onClick={(ev) => {
-            ev.preventDefault();
-            handleOrderById(orderNumber);
-          }}
-        >
-          SUBMIT
-        </SubmitButton>
-      </form>
-      {/* <DivBlock>
-        <CartDiv>
-          <CartTitle>
-            <h3> Your Order:</h3>
-            <p>{numCartItems} item(s)</p>
-          </CartTitle>
-          <ListDiv>
-            {cartItems.map((item) => {
-              return (
-                <ItemDiv key={item.id}>
-                  <CartItem
-                    price={item.price}
-                    quantity={item.quantity}
-                    name={item.name}
-                    id={item.id}
-                    item={item}
-                  />
-                </ItemDiv>
-              );
-            })}
-          </ListDiv>
-          <BottomPart>
-            <Total>Total: ${total.toFixed(2)}</Total>
-            <PurchaseButton
-              disabled={cartItems.length > 0 ? false : true}
-              onClick={() =>
-                dispatch(beginPurchaseProcess({ cartItems, total }))
-              }
-            >
-              Purchase
-            </PurchaseButton>
-          </BottomPart>
-        </CartDiv>
-      </DivBlock> */}
+      <DivBlock>
+        <InputForm>
+          <InputDiv>
+            <label htmlFor="orderNumber">Please enter your order number:</label>
+            <OrderNumberInput
+              type="text"
+              id="orderNumber"
+              name="orderNumber"
+              value={orderNumber}
+              onChange={(e) => setOrderNumber(e.target.value)}
+            ></OrderNumberInput>
+          </InputDiv>
+          <SubmitButton
+            onClick={(ev) => {
+              ev.preventDefault();
+              handleOrderById(orderNumber);
+              setOrderNumber("");
+            }}
+          >
+            SUBMIT
+          </SubmitButton>
+        </InputForm>
+        {yourOrderItems.length > 0 && (
+          <>
+            <CartDiv>
+              <CartTitle>
+                <h3> Order Number {yourOrder.id}</h3>
+                <p>
+                  for {yourOrder.firstName} {yourOrder.lastName}
+                </p>
+                <p>{numCartItems} item(s):</p>
+              </CartTitle>
+              <ListDiv>
+                {yourOrder.order.map((item) => {
+                  return (
+                    <ItemDiv key={item.id}>
+                      <CartItemDiv>
+                        <ItemName>
+                          <div>{item.name}</div>
+                        </ItemName>
+                        <QuantityDiv>
+                          <p>Quantity:{item.quantity}</p>
+                        </QuantityDiv>
+                      </CartItemDiv>
+                    </ItemDiv>
+                  );
+                })}
+              </ListDiv>
+              <BottomPart>
+                <Total>Total: ${total.toFixed(2)}</Total>
+              </BottomPart>
+            </CartDiv>
+          </>
+        )}
+      </DivBlock>
     </PageDiv>
   );
 };
 
-const OrderNumberInput = styled.input``;
+const InputForm = styled.form`
+  display: flex;
+  padding: 10px;
+  height: 40px;
+  align-items: center;
+`;
+
+const CartItemDiv = styled.div``;
+
+const QuantityDiv = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const ItemName = styled.div`
+  display: flex;
+`;
+
+const OrderNumberInput = styled.input`
+  margin: 0 20px;
+  width: 200px;
+`;
 
 const InputDiv = styled.div`
   color: black;
 `;
 
-const SubmitButton = styled.button``;
+const SubmitButton = styled.button`
+  background-color: #006666;
+  color: white;
+  font-family: "Spartan";
+  border: none;
+  outline: none;
+  padding: 5px;
+  &:hover {
+    cursor: pointer;
+    background-color: #28bbbd;
+  }
+`;
 
 const PageDiv = styled.div`
   width: 100vw;
@@ -122,12 +158,13 @@ const DivBlock = styled.div`
 
 const CartDiv = styled.div`
   /* flex: 3; */
+  margin-top: 20px;
   position: fixed;
   top: 140px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 30%;
+  width: 60%;
   padding: 30px;
   height: calc(100vh - 140px);
 `;
@@ -159,18 +196,4 @@ const Total = styled.div`
   color: white;
 `;
 
-const PurchaseButton = styled.button`
-  background-color: #8080ff;
-  color: white;
-  border: none;
-  outline: none;
-  padding: 5px 10px;
-  font-family: "Spartan";
-  font-size: 16px;
-  &:hover {
-    cursor: pointer;
-    background-color: white;
-    color: #8080ff;
-  }
-`;
 export default ViewOrder;
